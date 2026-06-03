@@ -1,0 +1,82 @@
+{
+  "name": {
+    "en": "Mitsubishi Air Conditioner"
+  },
+  "class": "thermostat",
+  "capabilities": [
+    "onoff",
+    "ac_mode",
+    "target_temperature",
+    "measure_temperature",
+    "measure_temperature.outdoor",
+    "fan_speed",
+    "vane_vertical"
+  ],
+  "capabilitiesOptions": {
+    "target_temperature": {
+      "min": 16,
+      "max": 31,
+      "step": 0.5,
+      "units": { "en": "°C" }
+    },
+    "measure_temperature": {
+      "title": { "en": "Room temperature" }
+    },
+    "measure_temperature.outdoor": {
+      "title": { "en": "Outdoor temperature" }
+    }
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "images": {
+    "small": "/drivers/mitsubishi-ac/assets/images/small.png",
+    "large": "/drivers/mitsubishi-ac/assets/images/large.png",
+    "xlarge": "/drivers/mitsubishi-ac/assets/images/xlarge.png"
+  },
+  "pair": [
+    {
+      "id": "start"
+    },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": { "next": "add_devices" },
+      "options": { "singular": false }
+    },
+    {
+      "id": "manual_entry"
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": { "en": "Connection" },
+      "children": [
+        {
+          "id": "ip",
+          "type": "text",
+          "label": { "en": "IP address" },
+          "value": "",
+          "hint": { "en": "The local IP address of the air conditioner's Wi-Fi adapter. Reserve it in your router so it does not change." }
+        },
+        {
+          "id": "poll_interval",
+          "type": "number",
+          "label": { "en": "Poll interval (seconds)" },
+          "value": 60,
+          "min": 10,
+          "max": 600,
+          "hint": { "en": "How often Homey reads the current state from the air conditioner." }
+        }
+      ]
+    }
+  ]
+}

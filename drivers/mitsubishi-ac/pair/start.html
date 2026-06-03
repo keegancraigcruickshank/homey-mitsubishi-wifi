@@ -1,0 +1,31 @@
+<div style="padding: 20px 16px; text-align: center;">
+  <p style="margin-bottom: 24px;">How would you like to add your air conditioner?</p>
+  <button id="btn-search" class="homey-button-primary-full" style="margin-bottom: 12px;">Search automatically</button>
+  <button id="btn-manual" class="homey-button-secondary-full">Enter IP address manually</button>
+  <p style="opacity: 0.6; font-size: 0.85em; margin-top: 20px;">
+    On a self-hosted / Docker Homey, automatic search may not work (multicast is blocked) — use manual entry with the IP from Home Assistant.
+  </p>
+</div>
+
+<script type="text/javascript">
+  // Wire up once, tolerant of both pairing-view styles:
+  //  - newer SDK: Homey is passed to a global onHomeyReady(Homey)
+  //  - older/global: Homey is already a global when this script runs
+  function setup(Homey) {
+    if (setup.done) return;
+    setup.done = true;
+
+    try { Homey.setTitle('Add Mitsubishi AC'); } catch (e) { /* optional */ }
+
+    document.getElementById('btn-search').onclick = function () { Homey.showView('list_devices'); };
+    document.getElementById('btn-manual').onclick = function () { Homey.showView('manual_entry'); };
+
+    if (typeof Homey.ready === 'function') Homey.ready();
+  }
+
+  function onHomeyReady(Homey) { setup(Homey); }
+
+  if (typeof Homey !== 'undefined' && Homey && typeof Homey.showView === 'function') {
+    setup(Homey);
+  }
+</script>

@@ -1,0 +1,21 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Fan speed"
+  },
+  "desc": {
+    "en": "Fan speed of the air conditioner"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "icon": "/assets/capabilities/fan_speed.svg",
+  "values": [
+    { "id": "auto", "title": { "en": "Automatic" } },
+    { "id": "quiet", "title": { "en": "Quiet" } },
+    { "id": "low", "title": { "en": "Low" } },
+    { "id": "medium", "title": { "en": "Medium" } },
+    { "id": "high", "title": { "en": "High" } },
+    { "id": "max", "title": { "en": "Maximum" } }
+  ]
+}

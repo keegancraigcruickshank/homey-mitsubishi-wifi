@@ -1,0 +1,20 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Mode"
+  },
+  "desc": {
+    "en": "Operating mode of the air conditioner"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "icon": "/assets/capabilities/ac_mode.svg",
+  "values": [
+    { "id": "auto", "title": { "en": "Automatic" } },
+    { "id": "cool", "title": { "en": "Cooling" } },
+    { "id": "heat", "title": { "en": "Heating" } },
+    { "id": "dry", "title": { "en": "Dehumidify" } },
+    { "id": "fan", "title": { "en": "Fan only" } }
+  ]
+}

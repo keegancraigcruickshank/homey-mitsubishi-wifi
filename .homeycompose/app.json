@@ -1,0 +1,42 @@
+{
+  "id": "au.com.cloudpixel.mitsubishi",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Mitsubishi AC (ECHONET)"
+  },
+  "description": {
+    "en": "Control Mitsubishi Electric Wi-Fi air conditioners over ECHONET Lite."
+  },
+  "category": [
+    "climate"
+  ],
+  "brandColor": "#E60012",
+  "tags": {
+    "en": [
+      "Mitsubishi",
+      "air conditioner",
+      "heat pump",
+      "ECHONET",
+      "ECHONET Lite",
+      "MAC-567IF",
+      "MAC-588IF",
+      "HVAC",
+      "climate"
+    ]
+  },
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Cloud Pixel",
+    "email": "keegan@cloudpixel.com.au"
+  }
+}

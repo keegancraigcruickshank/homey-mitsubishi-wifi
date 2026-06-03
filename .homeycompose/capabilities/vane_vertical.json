@@ -1,0 +1,22 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Vane (vertical)"
+  },
+  "desc": {
+    "en": "Vertical air flow direction"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "icon": "/assets/capabilities/vane_vertical.svg",
+  "values": [
+    { "id": "auto", "title": { "en": "Automatic" } },
+    { "id": "top", "title": { "en": "Top" } },
+    { "id": "upper", "title": { "en": "Upper" } },
+    { "id": "middle", "title": { "en": "Middle" } },
+    { "id": "lower", "title": { "en": "Lower" } },
+    { "id": "bottom", "title": { "en": "Bottom" } },
+    { "id": "swing", "title": { "en": "Swing" } }
+  ]
+}

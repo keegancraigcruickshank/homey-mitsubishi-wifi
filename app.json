@@ -1,0 +1,303 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "au.com.cloudpixel.mitsubishi",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Mitsubishi AC (ECHONET)"
+  },
+  "description": {
+    "en": "Control Mitsubishi Electric Wi-Fi air conditioners over ECHONET Lite."
+  },
+  "category": [
+    "climate"
+  ],
+  "brandColor": "#E60012",
+  "tags": {
+    "en": [
+      "Mitsubishi",
+      "air conditioner",
+      "heat pump",
+      "ECHONET",
+      "ECHONET Lite",
+      "MAC-567IF",
+      "MAC-588IF",
+      "HVAC",
+      "climate"
+    ]
+  },
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Cloud Pixel",
+    "email": "keegan@cloudpixel.com.au"
+  },
+  "drivers": [
+    {
+      "name": {
+        "en": "Mitsubishi Air Conditioner"
+      },
+      "class": "thermostat",
+      "capabilities": [
+        "onoff",
+        "ac_mode",
+        "target_temperature",
+        "measure_temperature",
+        "measure_temperature.outdoor",
+        "fan_speed",
+        "vane_vertical"
+      ],
+      "capabilitiesOptions": {
+        "target_temperature": {
+          "min": 16,
+          "max": 31,
+          "step": 0.5,
+          "units": {
+            "en": "°C"
+          }
+        },
+        "measure_temperature": {
+          "title": {
+            "en": "Room temperature"
+          }
+        },
+        "measure_temperature.outdoor": {
+          "title": {
+            "en": "Outdoor temperature"
+          }
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/mitsubishi-ac/assets/images/small.png",
+        "large": "/drivers/mitsubishi-ac/assets/images/large.png",
+        "xlarge": "/drivers/mitsubishi-ac/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "start"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          },
+          "options": {
+            "singular": false
+          }
+        },
+        {
+          "id": "manual_entry"
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection"
+          },
+          "children": [
+            {
+              "id": "ip",
+              "type": "text",
+              "label": {
+                "en": "IP address"
+              },
+              "value": "",
+              "hint": {
+                "en": "The local IP address of the air conditioner's Wi-Fi adapter. Reserve it in your router so it does not change."
+              }
+            },
+            {
+              "id": "poll_interval",
+              "type": "number",
+              "label": {
+                "en": "Poll interval (seconds)"
+              },
+              "value": 60,
+              "min": 10,
+              "max": 600,
+              "hint": {
+                "en": "How often Homey reads the current state from the air conditioner."
+              }
+            }
+          ]
+        }
+      ],
+      "id": "mitsubishi-ac"
+    }
+  ],
+  "capabilities": {
+    "ac_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Mode"
+      },
+      "desc": {
+        "en": "Operating mode of the air conditioner"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "icon": "/assets/capabilities/ac_mode.svg",
+      "values": [
+        {
+          "id": "auto",
+          "title": {
+            "en": "Automatic"
+          }
+        },
+        {
+          "id": "cool",
+          "title": {
+            "en": "Cooling"
+          }
+        },
+        {
+          "id": "heat",
+          "title": {
+            "en": "Heating"
+          }
+        },
+        {
+          "id": "dry",
+          "title": {
+            "en": "Dehumidify"
+          }
+        },
+        {
+          "id": "fan",
+          "title": {
+            "en": "Fan only"
+          }
+        }
+      ]
+    },
+    "fan_speed": {
+      "type": "enum",
+      "title": {
+        "en": "Fan speed"
+      },
+      "desc": {
+        "en": "Fan speed of the air conditioner"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "icon": "/assets/capabilities/fan_speed.svg",
+      "values": [
+        {
+          "id": "auto",
+          "title": {
+            "en": "Automatic"
+          }
+        },
+        {
+          "id": "quiet",
+          "title": {
+            "en": "Quiet"
+          }
+        },
+        {
+          "id": "low",
+          "title": {
+            "en": "Low"
+          }
+        },
+        {
+          "id": "medium",
+          "title": {
+            "en": "Medium"
+          }
+        },
+        {
+          "id": "high",
+          "title": {
+            "en": "High"
+          }
+        },
+        {
+          "id": "max",
+          "title": {
+            "en": "Maximum"
+          }
+        }
+      ]
+    },
+    "vane_vertical": {
+      "type": "enum",
+      "title": {
+        "en": "Vane (vertical)"
+      },
+      "desc": {
+        "en": "Vertical air flow direction"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "icon": "/assets/capabilities/vane_vertical.svg",
+      "values": [
+        {
+          "id": "auto",
+          "title": {
+            "en": "Automatic"
+          }
+        },
+        {
+          "id": "top",
+          "title": {
+            "en": "Top"
+          }
+        },
+        {
+          "id": "upper",
+          "title": {
+            "en": "Upper"
+          }
+        },
+        {
+          "id": "middle",
+          "title": {
+            "en": "Middle"
+          }
+        },
+        {
+          "id": "lower",
+          "title": {
+            "en": "Lower"
+          }
+        },
+        {
+          "id": "bottom",
+          "title": {
+            "en": "Bottom"
+          }
+        },
+        {
+          "id": "swing",
+          "title": {
+            "en": "Swing"
+          }
+        }
+      ]
+    }
+  }
+}

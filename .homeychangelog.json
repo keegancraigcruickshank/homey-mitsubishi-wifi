@@ -1,0 +1,5 @@
+{
+  "1.0.0": {
+    "en": "Initial release. Discover and control Mitsubishi Electric Wi-Fi air conditioners (MAC-5xxIF-E adapters) over ECHONET Lite: power, mode, target/room/outdoor temperature, fan speed and vertical vane."
+  }
+}

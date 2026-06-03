@@ -1,0 +1,9 @@
+{
+  "name": "au.com.cloudpixel.mitsubishi",
+  "version": "1.0.0",
+  "description": "Control Mitsubishi Electric Wi-Fi air conditioners over ECHONET Lite",
+  "main": "app.js",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

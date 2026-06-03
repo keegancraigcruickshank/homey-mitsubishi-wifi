@@ -1,0 +1,48 @@
+<div style="padding: 20px 16px;">
+  <label class="homey-form-label" for="ip">IP address of the Wi-Fi adapter</label>
+  <input id="ip" class="homey-form-input" type="text" inputmode="decimal" placeholder="192.168.1.50" />
+  <p style="opacity: 0.6; font-size: 0.85em; margin-top: 8px;">
+    Use the same IP your air conditioner has in Home Assistant. Reserve it in your router so it doesn't change.
+  </p>
+  <button id="btn-add" class="homey-button-primary-full" style="margin-top: 20px;">Add device</button>
+</div>
+
+<script type="text/javascript">
+  function setup(Homey) {
+    if (setup.done) return;
+    setup.done = true;
+
+    try { Homey.setTitle('Enter IP address'); } catch (e) { /* optional */ }
+
+    var input = document.getElementById('ip');
+    var btn = document.getElementById('btn-add');
+
+    btn.onclick = async function () {
+      var ip = (input.value || '').trim();
+      if (!ip) {
+        Homey.alert('Please enter the IP address of the air conditioner.');
+        return;
+      }
+      try {
+        if (Homey.showLoadingOverlay) Homey.showLoadingOverlay();
+        var device = await Homey.emit('manual_add', ip);
+        await Homey.createDevice(device);
+        if (Homey.hideLoadingOverlay) Homey.hideLoadingOverlay();
+        Homey.done();
+      } catch (err) {
+        if (Homey.hideLoadingOverlay) Homey.hideLoadingOverlay();
+        Homey.alert(typeof err === 'string' ? err : (err && err.message) || 'Could not add the device.');
+      }
+    };
+
+    input.addEventListener('keyup', function (e) { if (e.key === 'Enter') btn.click(); });
+
+    if (typeof Homey.ready === 'function') Homey.ready();
+  }
+
+  function onHomeyReady(Homey) { setup(Homey); }
+
+  if (typeof Homey !== 'undefined' && Homey && typeof Homey.showView === 'function') {
+    setup(Homey);
+  }
+</script>
