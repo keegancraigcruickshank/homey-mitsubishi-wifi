@@ -8,7 +8,7 @@
     "local"
   ],
   "name": {
-    "en": "Mitsubishi AC (ECHONET)"
+    "en": "Mitsubishi Wifi AC"
   },
   "description": {
     "en": "Control Mitsubishi Electric Wi-Fi air conditioners over ECHONET Lite."
@@ -40,6 +40,11 @@
     "name": "Cloud Pixel",
     "email": "keegan@cloudpixel.com.au"
   },
+  "source": "https://github.com/keegancraigcruickshank/homey-mitsubishi-wifi",
+  "bugs": {
+    "url": "https://github.com/keegancraigcruickshank/homey-mitsubishi-wifi/issues"
+  },
+  "support": "mailto:keegan@cloudpixel.com.au",
   "drivers": [
     {
       "name": {

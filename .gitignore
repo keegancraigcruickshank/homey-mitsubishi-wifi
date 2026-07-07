@@ -7,3 +7,4 @@ env.json
 # Note: app.json is generated from /.homeycompose by `homey app build`,
 # but is committed so the CLI recognises the project on a fresh clone.
 # Treat the files in /.homeycompose and /drivers as the source of truth.
+.idea/
