@@ -11,12 +11,13 @@
     --accent-2:#22d3ee;
     --glow:    rgba(56,189,248,.55);
 
-    /* neutrals — cool-biased slate */
-    --surface-1: #141d27;
+    /* neutrals — Homey design tokens when running in the dashboard,
+       cool-biased slate fallbacks elsewhere (previews, dev) */
+    --surface-1: var(--homey-background-color, #141d27);
     --surface-2: #0e151d;
-    --card-edge: rgba(255,255,255,.06);
-    --text:      #eaf2f8;
-    --muted:     #7d8f9c;
+    --card-edge: var(--homey-line-color-light, rgba(255,255,255,.06));
+    --text:      var(--homey-text-color, #eaf2f8);
+    --muted:     var(--homey-text-color-light, #7d8f9c);
     --track:     rgba(255,255,255,.075);
     --btn:       rgba(255,255,255,.05);
     --btn-edge:  rgba(255,255,255,.09);
@@ -24,16 +25,27 @@
   }
   @media (prefers-color-scheme: light) {
     :root {
-      --surface-1: #ffffff;
+      --surface-1: var(--homey-background-color, #ffffff);
       --surface-2: #f2f6f9;
-      --card-edge: rgba(12,26,38,.08);
-      --text:      #12212c;
-      --muted:     #5f7180;
+      --card-edge: var(--homey-line-color-light, rgba(12,26,38,.08));
+      --text:      var(--homey-text-color, #12212c);
+      --muted:     var(--homey-text-color-light, #5f7180);
       --track:     rgba(14,30,45,.09);
       --btn:       rgba(14,30,45,.04);
       --btn-edge:  rgba(14,30,45,.10);
       --chip:      rgba(14,30,45,.035);
     }
+  }
+  /* the Homey dashboard signals dark mode with this class, independent of
+     the OS prefers-color-scheme — it must win over the media query above */
+  .homey-dark-mode {
+    --surface-1: var(--homey-background-color, #141d27);
+    --surface-2:#0e151d;
+    --card-edge: var(--homey-line-color-light, rgba(255,255,255,.06));
+    --text:      var(--homey-text-color, #eaf2f8);
+    --muted:     var(--homey-text-color-light, #7d8f9c);
+    --track:rgba(255,255,255,.075);
+    --btn:rgba(255,255,255,.05); --btn-edge:rgba(255,255,255,.09); --chip:rgba(255,255,255,.035);
   }
   :root[data-theme="dark"] {
     --surface-1:#141d27; --surface-2:#0e151d; --card-edge:rgba(255,255,255,.06);
@@ -102,7 +114,7 @@
               filter: drop-shadow(0 0 10px var(--glow)); transition: stroke .5s ease; }
   .widget[data-on="false"] .progress { filter: none; opacity: .5; }
   .knob   { fill: var(--surface-1); stroke: var(--accent); stroke-width: 4;
-            filter: drop-shadow(0 3px 8px rgba(0,0,0,.5)); cursor: grab; transition: stroke .5s ease; }
+            cursor: grab; transition: stroke .5s ease; }
   .dial.dragging .knob { cursor: grabbing; }
 
   .readout { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; pointer-events: none; }
@@ -274,6 +286,7 @@
   // ---- state -------------------------------------------------------------
   const state = { on: false, mode: "cool", target: 22, room: null, outdoor: null, fan: "auto", name: "Air Conditioner" };
   let homeyApi = null;      // set in onHomeyReady
+  let haptic = () => {};    // becomes Homey.hapticFeedback in onHomeyReady
   let deviceId = null;
   let lastLocalChange = 0;
   let dragging = false;
@@ -314,7 +327,7 @@
     b.addEventListener("click", () => {
       state.mode = key;
       if (!state.on) state.on = true; // the driver powers on when a mode is set
-      touch(); render(); push("/mode", key);
+      haptic(); touch(); render(); push("/mode", key);
     });
     modesBox.appendChild(b);
   }
@@ -324,7 +337,7 @@
     const b = document.createElement("button");
     b.className = "fanbtn"; b.type = "button"; b.dataset.fan = f.key; b.textContent = f.label;
     b.setAttribute("aria-pressed", "false");
-    b.addEventListener("click", () => { state.fan = f.key; touch(); render(); push("/fan", f.key); });
+    b.addEventListener("click", () => { state.fan = f.key; haptic(); touch(); render(); push("/fan", f.key); });
     fanBox.appendChild(b);
   }
 
@@ -373,9 +386,9 @@
     if (nv !== state.target) { state.target = nv; touch(); render(); pushTemp(); }
   }
 
-  el("up").addEventListener("click", () => setTemp(state.target + STEP));
-  el("down").addEventListener("click", () => setTemp(state.target - STEP));
-  el("power").addEventListener("click", () => { state.on = !state.on; touch(); render(); push("/onoff", state.on); });
+  el("up").addEventListener("click", () => { haptic(); setTemp(state.target + STEP); });
+  el("down").addEventListener("click", () => { haptic(); setTemp(state.target - STEP); });
+  el("power").addEventListener("click", () => { state.on = !state.on; haptic(); touch(); render(); push("/onoff", state.on); });
 
   // drag on the dial
   const dial = el("dial");
@@ -389,7 +402,7 @@
     setTemp(MIN + ((ang - A0) / SWEEP) * (MAX - MIN));
   }
   dial.addEventListener("pointerdown", ev => {
-    dragging = true; dial.classList.add("dragging");
+    dragging = true; dial.classList.add("dragging"); haptic();
     dial.setPointerCapture(ev.pointerId); pointToTemp(ev); ev.preventDefault();
   });
   dial.addEventListener("pointermove", ev => { if (dragging) pointToTemp(ev); });
@@ -488,6 +501,9 @@
 
   window.onHomeyReady = function onHomeyReady(Homey) {
     homeyApi = Homey.api.bind(Homey);
+    if (typeof Homey.hapticFeedback === "function") {
+      haptic = () => { try { Homey.hapticFeedback(); } catch (e) { /* outside touch window */ } };
+    }
     deviceId = (Homey.getDeviceIds() || [])[0] || null;
 
     if (!deviceId) {
