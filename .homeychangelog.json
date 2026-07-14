@@ -10,5 +10,8 @@
   },
   "1.1.1": {
     "en": "Add AC Control dashboard widget with temperature dial, mode, fan and power"
+  },
+  "1.2.0": {
+    "en": "New AC Control Mini widget: a half-height card with temperature slider, mode, fan speed and power. Widget polish: transparent card, cleaner mode icons, no accidental scrolling while dragging."
   }
 }
