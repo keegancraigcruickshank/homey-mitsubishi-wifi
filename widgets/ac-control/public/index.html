@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
 <style>
   :root {
     color-scheme: light dark;
@@ -67,8 +67,8 @@
 
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; overscroll-behavior: none; }
-  /* font on html so Homey's injected body/class font rules win when present */
-  html { font-family: var(--homey-font-family, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif); }
+  /* Roboto is what the dashboard's injected homey.widgets.css uses */
+  html { font-family: 'Roboto', 'NotoSansArabic', -apple-system, system-ui, Helvetica, sans-serif; }
   body {
     color: var(--text);
     -webkit-font-smoothing: antialiased;
@@ -76,6 +76,7 @@
     padding: 4px; /* room for the card's shadow */
     user-select: none;
     -webkit-user-select: none;
+    touch-action: manipulation; /* no double-tap zoom */
   }
   button { font-family: inherit; }
 
@@ -84,7 +85,7 @@
      soft shadow; on turns white (both themes) like an active tile */
   .widget {
     width: 100%;
-    border-radius: var(--homey-border-radius-default, 20px);
+    border-radius: var(--homey-border-radius-default, 10px);
     padding: var(--homey-su-5, 20px);
     position: relative;
     overflow: hidden;
@@ -321,30 +322,27 @@
   if (params.get("theme")) document.documentElement.dataset.theme = params.get("theme");
   if (params.has("preview")) { state.on = true; state.room = 24; state.name = "Living Room"; }
 
-  // The dashboard webview can misreport prefers-color-scheme, but Homey's
-  // injected tokens are always theme-correct — derive dark/light from the
-  // resolved background token's luminance (class check as a fallback).
-  const themeProbe = document.createElement("span");
-  themeProbe.style.display = "none";
-  document.documentElement.appendChild(themeProbe);
+  // Homey's injected CSS switches themes ONLY via a .homey-dark-mode class
+  // on <html>, added by homey.widgets.js when the dashboard reports dark —
+  // there is no media-query fallback. If that signal doesn't arrive but the
+  // webview itself prefers dark, add the class ourselves so the injected
+  // tokens (and our fallbacks) all flip together.
+  const mediaDark = window.matchMedia("(prefers-color-scheme: dark)");
+  let weAddedDark = false;
   function syncTheme() {
     if (params.get("theme")) return; // forced (previews)
     const root = document.documentElement;
-    let dark = null;
-    const bg = getComputedStyle(root).getPropertyValue("--homey-background-color").trim();
-    if (bg) {
-      themeProbe.style.color = bg;
-      const m = getComputedStyle(themeProbe).color.match(/\d+(\.\d+)?/g);
-      if (m && m.length >= 3) {
-        const [r, g, b] = m.slice(0, 3).map(Number);
-        dark = (0.299 * r + 0.587 * g + 0.114 * b) < 128;
-      }
+    const homeySaysDark = root.classList.contains("homey-dark-mode") && !weAddedDark;
+    const dark = homeySaysDark || mediaDark.matches;
+    if (dark && !root.classList.contains("homey-dark-mode")) {
+      root.classList.add("homey-dark-mode"); weAddedDark = true;
+    } else if (!dark && weAddedDark) {
+      root.classList.remove("homey-dark-mode"); weAddedDark = false;
     }
-    if (dark === null && (root.classList.contains("homey-dark-mode") ||
-        document.body.classList.contains("homey-dark-mode"))) dark = true;
-    if (dark !== null) root.dataset.theme = dark ? "dark" : "light";
+    root.dataset.theme = dark ? "dark" : "light";
   }
   syncTheme();
+  mediaDark.addEventListener("change", syncTheme);
 
   // ---- geometry helpers --------------------------------------------------
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
