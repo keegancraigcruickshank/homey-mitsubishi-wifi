@@ -16,5 +16,8 @@
   },
   "1.2.1": {
     "en": "Use homey css guidelines for widgets"
+  },
+  "1.2.2": {
+    "en": "Respect widget guidelines on colors and tokens"
   }
 }
