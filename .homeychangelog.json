@@ -7,5 +7,8 @@
   },
   "1.1.0": {
     "en": "New AC Control dashboard widget: temperature dial, mode, fan speed and power in one card. Requires Homey firmware 12.3 or newer."
+  },
+  "1.1.1": {
+    "en": "Add AC Control dashboard widget with temperature dial, mode, fan and power"
   }
 }
