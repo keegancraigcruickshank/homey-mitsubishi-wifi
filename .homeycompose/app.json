@@ -1,7 +1,7 @@
 {
   "id": "au.com.cloudpixel.mitsubishi",
-  "version": "1.0.1",
-  "compatibility": ">=5.0.0",
+  "version": "1.1.0",
+  "compatibility": ">=12.3.0",
   "sdk": 3,
   "platforms": [
     "local"
@@ -10,7 +10,7 @@
     "en": "Mitsubishi Wifi AC"
   },
   "description": {
-    "en": "Control Mitsubishi Electric Wi-Fi air conditioners over ECHONET Lite."
+    "en": "Perfect climate comfort — fast, local and without a cloud account"
   },
   "category": [
     "climate"

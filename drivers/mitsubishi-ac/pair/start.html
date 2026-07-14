@@ -18,7 +18,7 @@
     try { Homey.setTitle('Add Mitsubishi AC'); } catch (e) { /* optional */ }
 
     document.getElementById('btn-search').onclick = function () { Homey.showView('list_devices'); };
-    document.getElementById('btn-manual').onclick = function () { Homey.showView('manual_entry'); };
+    document.getElementById('btn-manual').onclick = function () { Homey.showView('manual_add'); };
 
     if (typeof Homey.ready === 'function') Homey.ready();
   }

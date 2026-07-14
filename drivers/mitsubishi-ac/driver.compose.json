@@ -48,7 +48,7 @@
       "options": { "singular": false }
     },
     {
-      "id": "manual_entry"
+      "id": "manual_add"
     },
     {
       "id": "add_devices",

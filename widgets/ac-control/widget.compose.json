@@ -1,0 +1,37 @@
+{
+  "name": {
+    "en": "AC Control"
+  },
+  "height": 596,
+  "transparent": true,
+  "settings": [],
+  "devices": {
+    "type": "app",
+    "singular": true,
+    "filter": {
+      "capabilities": "ac_mode"
+    }
+  },
+  "api": {
+    "getState": {
+      "method": "GET",
+      "path": "/state"
+    },
+    "setOnOff": {
+      "method": "POST",
+      "path": "/onoff"
+    },
+    "setTarget": {
+      "method": "POST",
+      "path": "/target"
+    },
+    "setMode": {
+      "method": "POST",
+      "path": "/mode"
+    },
+    "setFan": {
+      "method": "POST",
+      "path": "/fan"
+    }
+  }
+}
