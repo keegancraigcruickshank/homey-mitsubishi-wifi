@@ -63,8 +63,9 @@
     -webkit-user-select: none;
   }
 
-  /* Homey draws the widget card (frame, radius, shadow, background);
-     this container pads the content and clips the airflow canvas. */
+  /* the widget runs transparent and paints its own card, matching Homey
+     device tiles: off is a translucent grey barely off the dashboard
+     background; on turns white (both themes) like an active tile */
   .widget {
     width: 100%;
     border-radius: var(--homey-border-radius-default, 20px);
@@ -72,16 +73,9 @@
     position: relative;
     overflow: hidden;
     color: var(--text); /* re-resolve inside the on/off palette override */
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
     transition: background .5s ease;
   }
-  /* previews render outside the dashboard — emulate the Homey card there */
-  .widget[data-preview="true"] {
-    background: var(--surface-1);
-    box-shadow: 0 14px 40px -18px rgba(0,0,0,.35);
-  }
-  /* match Homey device tiles: off stays on the standard grey card with the
-     accent collapsed to grey; on turns the card white (in both themes, like
-     active tiles) with dark content and the mode accent */
   .widget[data-on="false"] {
     --accent: var(--muted);
     --accent-2: var(--muted);
@@ -295,7 +289,6 @@
   // ---- elements ----------------------------------------------------------
   const el = id => document.getElementById(id);
   const widget = el("widget");
-  if (params.has("preview")) widget.dataset.preview = "true";
 
   // build mode chips
   const modesBox = el("modes");

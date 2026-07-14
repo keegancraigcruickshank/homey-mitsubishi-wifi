@@ -3,7 +3,7 @@
     "en": "AC Control"
   },
   "height": 588,
-  "transparent": false,
+  "transparent": true,
   "settings": [],
   "devices": {
     "type": "app",
