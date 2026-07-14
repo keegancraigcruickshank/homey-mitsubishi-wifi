@@ -16,6 +16,7 @@
        --ink is the theme's max-contrast mono; subtle fills derive from it. */
     --ink:       var(--homey-color-mono-1000, #ffffff);
     --surface-1: var(--homey-background-color, #141d27);
+    --surface-on:var(--homey-color-mono-100, #212b38);
     --surface-2: #0e151d;
     --card-edge: var(--homey-line-color-light, rgba(255,255,255,.06));
     --text:      var(--homey-text-color, #eaf2f8);
@@ -29,6 +30,7 @@
     :root {
       --ink:       var(--homey-color-mono-1000, #0e1e2d);
       --surface-1: var(--homey-background-color, #ffffff);
+      --surface-on:var(--homey-color-mono-000, #ffffff);
       --surface-2: #f2f6f9;
       --card-edge: var(--homey-line-color-light, rgba(12,26,38,.08));
       --text:      var(--homey-text-color, #12212c);
@@ -40,6 +42,7 @@
   .homey-dark-mode {
     --ink:       var(--homey-color-mono-1000, #ffffff);
     --surface-1: var(--homey-background-color, #141d27);
+    --surface-on:var(--homey-color-mono-100, #212b38);
     --surface-2: #0e151d;
     --card-edge: var(--homey-line-color-light, rgba(255,255,255,.06));
     --text:      var(--homey-text-color, #eaf2f8);
@@ -51,6 +54,7 @@
   :root[data-theme="dark"] {
     --ink:       var(--homey-color-mono-1000, #ffffff);
     --surface-1: var(--homey-background-color, #141d27);
+    --surface-on:var(--homey-color-mono-100, #212b38);
     --surface-2: #0e151d;
     --card-edge: var(--homey-line-color-light, rgba(255,255,255,.06));
     --text:      var(--homey-text-color, #eaf2f8);
@@ -59,6 +63,7 @@
   :root[data-theme="light"] {
     --ink:       var(--homey-color-mono-1000, #0e1e2d);
     --surface-1: var(--homey-background-color, #ffffff);
+    --surface-on:var(--homey-color-mono-000, #ffffff);
     --surface-2: #f2f6f9;
     --card-edge: var(--homey-line-color-light, rgba(12,26,38,.08));
     --text:      var(--homey-text-color, #12212c);
@@ -82,7 +87,7 @@
 
   /* the widget runs transparent and paints its own card, matching Homey
      device tiles: the standard background color with a hairline border and
-     soft shadow; on turns white (both themes) like an active tile */
+     soft shadow; the on state elevates it (see below) */
   .widget {
     width: 100%;
     border-radius: var(--homey-border-radius-default, 10px);
@@ -99,13 +104,10 @@
     --accent: var(--muted);
     --accent-2: var(--muted);
   }
+  /* on elevates the card: white in light mode, a lighter grey in dark mode */
   .widget[data-on="true"] {
-    background: #ffffff;
-    --ink: #0e1e2d;
-    --surface-1: #ffffff;
-    --card-edge: rgba(12,26,38,.08);
-    --text: #12212c;
-    --muted: #5f7180;
+    background: var(--surface-on);
+    --surface-1: var(--surface-on);
   }
 
   /* ambient airflow canvas sits behind content */
