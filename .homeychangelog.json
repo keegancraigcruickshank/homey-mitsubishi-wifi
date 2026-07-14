@@ -12,7 +12,7 @@
     "en": "Add AC Control dashboard widget with temperature dial, mode, fan and power"
   },
   "1.2.0": {
-    "en": "New AC Control Mini widget: a half-height card with temperature slider, mode, fan speed and power. Widget polish: transparent card, cleaner mode icons, no accidental scrolling while dragging."
+    "en": "New AC Control Mini widget: a half-height card with temperature slider, mode, fan speed and power. Widget polish: native Homey card styling and design tokens, cleaner mode icons, haptic feedback, no accidental scrolling while dragging."
   },
   "1.2.1": {
     "en": "Use homey css guidelines for widgets"

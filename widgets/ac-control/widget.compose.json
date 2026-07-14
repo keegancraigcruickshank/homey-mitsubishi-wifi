@@ -2,8 +2,8 @@
   "name": {
     "en": "AC Control"
   },
-  "height": 594,
-  "transparent": true,
+  "height": 588,
+  "transparent": false,
   "settings": [],
   "devices": {
     "type": "app",

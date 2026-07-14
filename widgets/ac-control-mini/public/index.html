@@ -59,23 +59,23 @@
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     font-size: var(--homey-font-size-small, 14px);
-    padding: 2px;
     user-select: none;
     -webkit-user-select: none;
   }
 
+  /* Homey draws the widget card (frame, radius, shadow, background);
+     this container only pads the content and clips the airflow canvas. */
   .widget {
     width: 100%;
-    border-radius: 20px;
+    border-radius: var(--homey-border-radius-default, 20px);
     padding: var(--homey-su-4, 16px);
     position: relative;
     overflow: hidden;
-    background: transparent;
-    border: 1px solid var(--card-edge);
-    transition: border-color .6s ease;
   }
-  .widget[data-on="true"] {
-    border-color: color-mix(in srgb, var(--accent) 30%, var(--card-edge));
+  /* previews render outside the dashboard — emulate the Homey card there */
+  .widget[data-preview="true"] {
+    background: var(--surface-1);
+    box-shadow: 0 14px 40px -18px rgba(0,0,0,.35);
   }
 
   /* ambient airflow canvas sits behind content */
@@ -278,6 +278,7 @@
   // ---- elements ----------------------------------------------------------
   const el = id => document.getElementById(id);
   const widget = el("widget");
+  if (params.has("preview")) widget.dataset.preview = "true";
 
   // build mode chips
   const modesBox = el("modes");

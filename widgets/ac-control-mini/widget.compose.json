@@ -2,8 +2,8 @@
   "name": {
     "en": "AC Control Mini"
   },
-  "height": 259,
-  "transparent": true,
+  "height": 253,
+  "transparent": false,
   "settings": [],
   "devices": {
     "type": "app",
