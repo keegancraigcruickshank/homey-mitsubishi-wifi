@@ -42,14 +42,22 @@
     --text:      var(--homey-text-color, #eaf2f8);
     --muted:     var(--homey-text-color-light, #7d8f9c);
   }
-  /* forced themes for preview screenshots (tokens absent there) */
+  /* explicit theme — stamped by syncTheme() in the dashboard (webviews often
+     misreport prefers-color-scheme) and forced via ?theme= for previews.
+     Still defers to tokens so a wrong stamp can't fight the design system. */
   :root[data-theme="dark"] {
-    --ink:#ffffff; --surface-1:#141d27;
-    --card-edge:rgba(255,255,255,.06); --text:#eaf2f8; --muted:#7d8f9c;
+    --ink:       var(--homey-color-mono-1000, #ffffff);
+    --surface-1: var(--homey-background-color, #141d27);
+    --card-edge: var(--homey-line-color-light, rgba(255,255,255,.06));
+    --text:      var(--homey-text-color, #eaf2f8);
+    --muted:     var(--homey-text-color-light, #7d8f9c);
   }
   :root[data-theme="light"] {
-    --ink:#0e1e2d; --surface-1:#ffffff;
-    --card-edge:rgba(12,26,38,.08); --text:#12212c; --muted:#5f7180;
+    --ink:       var(--homey-color-mono-1000, #0e1e2d);
+    --surface-1: var(--homey-background-color, #ffffff);
+    --card-edge: var(--homey-line-color-light, rgba(12,26,38,.08));
+    --text:      var(--homey-text-color, #12212c);
+    --muted:     var(--homey-text-color-light, #5f7180);
   }
 
   * { box-sizing: border-box; }
@@ -287,6 +295,31 @@
   if (params.get("theme")) document.documentElement.dataset.theme = params.get("theme");
   if (params.has("preview")) { state.on = true; state.room = 24; state.name = "Living Room"; }
 
+  // The dashboard webview can misreport prefers-color-scheme, but Homey's
+  // injected tokens are always theme-correct — derive dark/light from the
+  // resolved background token's luminance (class check as a fallback).
+  const themeProbe = document.createElement("span");
+  themeProbe.style.display = "none";
+  document.documentElement.appendChild(themeProbe);
+  function syncTheme() {
+    if (params.get("theme")) return; // forced (previews)
+    const root = document.documentElement;
+    let dark = null;
+    const bg = getComputedStyle(root).getPropertyValue("--homey-background-color").trim();
+    if (bg) {
+      themeProbe.style.color = bg;
+      const m = getComputedStyle(themeProbe).color.match(/\d+(\.\d+)?/g);
+      if (m && m.length >= 3) {
+        const [r, g, b] = m.slice(0, 3).map(Number);
+        dark = (0.299 * r + 0.587 * g + 0.114 * b) < 128;
+      }
+    }
+    if (dark === null && (root.classList.contains("homey-dark-mode") ||
+        document.body.classList.contains("homey-dark-mode"))) dark = true;
+    if (dark !== null) root.dataset.theme = dark ? "dark" : "light";
+  }
+  syncTheme();
+
   // ---- helpers -----------------------------------------------------------
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   const frac  = () => (state.target - MIN) / (MAX - MIN);
@@ -450,6 +483,7 @@
   }
 
   function pullState() {
+    syncTheme(); // tokens may be injected late, and the theme can change live
     if (!homeyApi || !deviceId) return;
     homeyApi("GET", `/state?deviceId=${encodeURIComponent(deviceId)}`)
       .then(s => {
@@ -472,6 +506,7 @@
   render();
 
   window.onHomeyReady = function onHomeyReady(Homey) {
+    syncTheme(); setTimeout(syncTheme, 1000); // retry once for late CSS injection
     homeyApi = Homey.api.bind(Homey);
     if (typeof Homey.hapticFeedback === "function") {
       haptic = () => { try { Homey.hapticFeedback(); } catch (e) { /* outside touch window */ } };
