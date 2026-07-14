@@ -64,24 +64,35 @@
   }
 
   /* Homey draws the widget card (frame, radius, shadow, background);
-     this container only pads the content and clips the airflow canvas. */
+     this container pads the content and clips the airflow canvas. */
   .widget {
     width: 100%;
     border-radius: var(--homey-border-radius-default, 20px);
     padding: var(--homey-su-4, 16px);
     position: relative;
     overflow: hidden;
+    color: var(--text); /* re-resolve inside the on/off palette override */
+    transition: background .5s ease;
   }
   /* previews render outside the dashboard — emulate the Homey card there */
   .widget[data-preview="true"] {
     background: var(--surface-1);
     box-shadow: 0 14px 40px -18px rgba(0,0,0,.35);
   }
-  /* match Homey device tiles: off collapses to a grey near the background,
-     on brings back the mode accent and bright text */
+  /* match Homey device tiles: off stays on the standard grey card with the
+     accent collapsed to grey; on turns the card white (in both themes, like
+     active tiles) with dark content and the mode accent */
   .widget[data-on="false"] {
     --accent: var(--muted);
     --accent-2: var(--muted);
+  }
+  .widget[data-on="true"] {
+    background: #ffffff;
+    --ink: #0e1e2d;
+    --surface-1: #ffffff;
+    --card-edge: rgba(12,26,38,.08);
+    --text: #12212c;
+    --muted: #5f7180;
   }
 
   /* ambient airflow canvas sits behind content */
