@@ -105,9 +105,6 @@
     --surface-1: var(--surface-on);
   }
 
-  /* ambient airflow canvas sits behind content */
-  #air { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity .8s ease; }
-  .widget[data-on="true"] #air { opacity: 1; }
   .content { position: relative; z-index: 1; }
 
   /* header ------------------------------------------------------- */
@@ -209,14 +206,12 @@
 
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; }
-    #air { display: none; }
   }
 </style>
 </head>
 <body>
 
 <div class="widget" data-on="false" id="widget">
-  <canvas id="air"></canvas>
   <div class="content">
   <header>
     <div class="device" id="deviceName">Air Conditioner</div>
@@ -275,14 +270,14 @@
     auto: { label: "Auto", a: "#818cf8", a2: "#a78bfa",
       icon: `<path d="M7.5 18l4.5-12 4.5 12M9 14h6" stroke-linecap="round" stroke-linejoin="round"/>` },
   };
-  // Matches the fan_speed capability values; speed drives the airflow animation.
+  // Matches the fan_speed capability values.
   const FANS = [
-    { key: "auto",   label: "AUTO",  speed: 1.0 },
-    { key: "quiet",  label: "QUIET", speed: 0.5 },
-    { key: "low",    label: "LOW",   speed: 0.7 },
-    { key: "medium", label: "MED",   speed: 1.0 },
-    { key: "high",   label: "HIGH",  speed: 1.5 },
-    { key: "max",    label: "MAX",   speed: 2.0 },
+    { key: "auto",   label: "AUTO"  },
+    { key: "quiet",  label: "QUIET" },
+    { key: "low",    label: "LOW"   },
+    { key: "medium", label: "MED"   },
+    { key: "high",   label: "HIGH"  },
+    { key: "max",    label: "MAX"   },
   ];
 
   // ---- state -------------------------------------------------------------
@@ -354,13 +349,11 @@
   }
 
   // ---- render ------------------------------------------------------------
-  let accentColor = "#38bdf8"; // resolved accent for the canvas (can't parse var())
   function render() {
     const m = MODES[state.mode] || MODES.cool;
     const root = document.documentElement;
     root.style.setProperty("--accent", m.a);
     root.style.setProperty("--accent-2", m.a2);
-    accentColor = getComputedStyle(root).getPropertyValue("--accent").trim() || accentColor;
 
     widget.dataset.on = String(state.on);
 
@@ -418,55 +411,6 @@
   slider.addEventListener("touchstart", ev => ev.preventDefault(), { passive: false });
   slider.addEventListener("touchmove", ev => ev.preventDefault(), { passive: false });
 
-  // ---- airflow animation -------------------------------------------------
-  const canvas = el("air"), ctx = canvas.getContext("2d");
-  let W = 0, H = 0, dpr = 1, parts = [];
-  function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const r = widget.getBoundingClientRect();
-    W = r.width; H = r.height;
-    canvas.width = W * dpr; canvas.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  function spawn() {
-    // fewer, shorter wisps than the full widget — the card is half the height
-    parts = Array.from({ length: 14 }, () => ({
-      x: Math.random() * W, y: Math.random() * H * 0.7,
-      len: 22 + Math.random() * 50, v: 0.4 + Math.random() * 1.1,
-      amp: 3 + Math.random() * 7, ph: Math.random() * Math.PI * 2,
-      w: 0.6 + Math.random() * 1.4, o: 0.05 + Math.random() * 0.14,
-    }));
-  }
-  let tick = 0;
-  function frame() {
-    requestAnimationFrame(frame);
-    if (!W) return;
-    ctx.clearRect(0, 0, W, H);
-    if (widget.dataset.on !== "true") return;
-    tick += 0.016;
-    const fan = FANS.find(f => f.key === state.fan);
-    const speed = fan ? fan.speed : 1;
-    const dir = state.mode === "heat" ? -1 : 1; // heat drifts up-ish
-    for (const p of parts) {
-      p.x += p.v * speed;
-      if (p.x - p.len > W) { p.x = -p.len; p.y = Math.random() * H * 0.75; }
-      const yy = p.y + Math.sin(tick * p.v + p.ph) * p.amp + dir * 4;
-      ctx.beginPath();
-      ctx.moveTo(p.x, yy);
-      ctx.bezierCurveTo(p.x - p.len * 0.4, yy - p.amp, p.x - p.len * 0.6, yy + p.amp, p.x - p.len, yy);
-      ctx.strokeStyle = accentColor;
-      ctx.globalAlpha = p.o * Math.min(speed, 1.4);
-      ctx.lineWidth = p.w; ctx.lineCap = "round";
-      ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-  }
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!reduce) {
-    resize(); spawn();
-    window.addEventListener("resize", () => { resize(); spawn(); });
-    requestAnimationFrame(frame);
-  }
 
   // ---- Homey integration ---------------------------------------------------
   function touch() { lastLocalChange = Date.now(); }
