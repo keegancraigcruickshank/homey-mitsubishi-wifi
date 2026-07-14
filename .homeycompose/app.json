@@ -1,6 +1,6 @@
 {
   "id": "au.com.cloudpixel.mitsubishi",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "compatibility": ">=12.3.0",
   "sdk": 3,
   "platforms": [
@@ -10,7 +10,7 @@
     "en": "Mitsubishi Wifi AC"
   },
   "description": {
-    "en": "Perfect climate comfort \u2014 fast, local and without a cloud account"
+    "en": "Perfect climate comfort — fast, local and without a cloud account"
   },
   "category": [
     "climate"

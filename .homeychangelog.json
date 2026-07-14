@@ -13,5 +13,8 @@
   },
   "1.2.0": {
     "en": "New AC Control Mini widget: a half-height card with temperature slider, mode, fan speed and power. Widget polish: transparent card, cleaner mode icons, no accidental scrolling while dragging."
+  },
+  "1.2.1": {
+    "en": "Use homey css guidelines for widgets"
   }
 }
