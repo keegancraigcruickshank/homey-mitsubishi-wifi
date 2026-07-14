@@ -8,7 +8,6 @@
     color-scheme: light dark;
     /* accent is driven by the active mode (set from JS); glow derives from it */
     --accent:  var(--homey-color-blue-400, #38bdf8);
-    --accent-2:var(--homey-color-blue-300, #22d3ee);
     --glow:    color-mix(in srgb, var(--accent) 55%, transparent);
 
     /* neutrals — Homey design tokens when running in the dashboard,
@@ -102,7 +101,6 @@
   }
   .widget[data-on="false"] {
     --accent: var(--muted);
-    --accent-2: var(--muted);
   }
   /* on elevates the card: white in light mode, a lighter grey in dark mode */
   .widget[data-on="true"] {
@@ -133,7 +131,7 @@
   .dial { position: relative; width: 228px; height: 228px; margin: 6px auto 2px; touch-action: none; }
   .dial svg { display: block; width: 100%; height: 100%; overflow: visible; }
   .track  { fill: none; stroke: var(--track); stroke-width: 13; stroke-linecap: round; }
-  .progress { fill: none; stroke: url(#grad); stroke-width: 13; stroke-linecap: round;
+  .progress { fill: none; stroke: var(--accent); stroke-width: 13; stroke-linecap: round;
               filter: drop-shadow(0 0 10px var(--glow)); transition: stroke .5s ease; }
   .widget[data-on="false"] .progress { filter: none; opacity: .5; }
   .knob   { fill: var(--surface-1); stroke: var(--accent); stroke-width: 4;
@@ -205,7 +203,7 @@
   .power:active { transform: scale(.98); }
   .widget[data-on="true"] .power {
     color: #06101a;
-    background: linear-gradient(180deg, var(--accent-2), var(--accent));
+    background: var(--accent);
     border-color: transparent;
     box-shadow: 0 12px 30px -12px var(--glow);
   }
@@ -229,12 +227,6 @@
 
     <div class="dial" id="dial">
       <svg viewBox="0 0 240 240" aria-hidden="true">
-        <defs>
-          <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="var(--accent-2)"/>
-            <stop offset="1" stop-color="var(--accent)"/>
-          </linearGradient>
-        </defs>
         <path class="track" id="track"></path>
         <path class="progress" id="prog"></path>
         <circle class="knob" id="knob" r="11"></circle>
@@ -285,15 +277,15 @@
   // Accents prefer Homey design tokens (present in the dashboard webview)
   // and fall back to our palette; auto keeps indigo — Homey has no purple token.
   const MODES = {
-    cool: { label: "Cool", a: "var(--homey-color-blue-400, #38bdf8)", a2: "var(--homey-color-blue-300, #22d3ee)",
+    cool: { label: "Cool", a: "var(--homey-color-blue-400, #38bdf8)",
       icon: `<path d="M12 3v18M4.5 7.5l15 9M19.5 7.5l-15 9" stroke-linecap="round"/>` },
-    heat: { label: "Heat", a: "var(--homey-color-orange-500, #fb923c)", a2: "#f59e0b",
+    heat: { label: "Heat", a: "var(--homey-color-orange-500, #fb923c)",
       icon: `<path d="M12 3c2 3 4 4.5 4 8a4 4 0 0 1-8 0c0-1.5.6-2.7 1.4-3.6C10 8.5 11 6.5 12 3Z"/>` },
-    dry:  { label: "Dry",  a: "var(--homey-color-green-500, #34d399)", a2: "#2dd4bf",
+    dry:  { label: "Dry",  a: "var(--homey-color-green-500, #34d399)",
       icon: `<path d="M12 3c3 4 5 6.5 5 9.5A5 5 0 0 1 7 12.5C7 9.5 9 7 12 3Z"/>` },
-    fan:  { label: "Fan",  a: "var(--homey-color-mono-400, #93a4b3)", a2: "#c3d0da",
+    fan:  { label: "Fan",  a: "var(--homey-color-mono-400, #93a4b3)",
       icon: `<circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M12 10.4c0-3 2-5 5-5 0 3-2 5-5 5Zm0 3.2c0 3-2 5-5 5 0-3 2-5 5-5Zm-1.6-1.6c-3 0-5-2-5-5 3 0 5 2 5 5Zm3.2 0c3 0 5 2 5 5-3 0-5-2-5-5Z"/>` },
-    auto: { label: "Auto", a: "#818cf8", a2: "#a78bfa",
+    auto: { label: "Auto", a: "#818cf8",
       icon: `<path d="M7.5 18l4.5-12 4.5 12M9 14h6" stroke-linecap="round" stroke-linejoin="round"/>` },
   };
   // Matches the fan_speed capability values.
@@ -391,7 +383,6 @@
     const m = MODES[state.mode] || MODES.cool;
     const root = document.documentElement;
     root.style.setProperty("--accent", m.a);
-    root.style.setProperty("--accent-2", m.a2);
 
     widget.dataset.on = String(state.on);
 
