@@ -57,18 +57,21 @@
 
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; overscroll-behavior: none; }
+  /* font on html so Homey's injected body/class font rules win when present */
+  html { font-family: var(--homey-font-family, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif); }
   body {
     color: var(--text);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     font-size: var(--homey-font-size-small, 14px);
+    padding: 4px; /* room for the card's shadow */
     user-select: none;
     -webkit-user-select: none;
   }
+  button { font-family: inherit; }
 
   /* the widget runs transparent and paints its own card, matching Homey
-     device tiles: off is a translucent grey barely off the dashboard
-     background; on turns white (both themes) like an active tile */
+     device tiles: the standard background color with a hairline border and
+     soft shadow; on turns white (both themes) like an active tile */
   .widget {
     width: 100%;
     border-radius: var(--homey-border-radius-default, 20px);
@@ -76,7 +79,9 @@
     position: relative;
     overflow: hidden;
     color: var(--text); /* re-resolve inside the on/off palette override */
-    background: color-mix(in srgb, var(--ink) 6%, transparent);
+    background: var(--surface-1);
+    border: 1px solid var(--card-edge);
+    box-shadow: 0 2px 5px -2px rgba(0,0,0,.22);
     transition: background .5s ease;
   }
   .widget[data-on="false"] {
