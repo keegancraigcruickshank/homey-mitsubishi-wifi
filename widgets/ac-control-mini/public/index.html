@@ -6,53 +6,50 @@
 <style>
   :root {
     color-scheme: light dark;
-    /* accent is driven by the active mode (set from JS) */
-    --accent:  #38bdf8;
-    --accent-2:#22d3ee;
-    --glow:    rgba(56,189,248,.55);
+    /* accent is driven by the active mode (set from JS); glow derives from it */
+    --accent:  var(--homey-color-blue-400, #38bdf8);
+    --accent-2:var(--homey-color-blue-300, #22d3ee);
+    --glow:    color-mix(in srgb, var(--accent) 55%, transparent);
 
     /* neutrals — Homey design tokens when running in the dashboard,
-       cool-biased slate fallbacks elsewhere (previews, dev) */
+       cool-biased slate fallbacks elsewhere (previews, dev).
+       --ink is the theme's max-contrast mono; subtle fills derive from it. */
+    --ink:       var(--homey-color-mono-1000, #ffffff);
     --surface-1: var(--homey-background-color, #141d27);
     --card-edge: var(--homey-line-color-light, rgba(255,255,255,.06));
     --text:      var(--homey-text-color, #eaf2f8);
     --muted:     var(--homey-text-color-light, #7d8f9c);
-    --track:     rgba(255,255,255,.075);
-    --btn:       rgba(255,255,255,.05);
-    --btn-edge:  rgba(255,255,255,.09);
-    --chip:      rgba(255,255,255,.035);
+    --track:     color-mix(in srgb, var(--ink) 8%, transparent);
+    --btn:       color-mix(in srgb, var(--ink) 4.5%, transparent);
+    --btn-edge:  color-mix(in srgb, var(--ink) 9%, transparent);
+    --chip:      color-mix(in srgb, var(--ink) 3.5%, transparent);
   }
   @media (prefers-color-scheme: light) {
     :root {
+      --ink:       var(--homey-color-mono-1000, #0e1e2d);
       --surface-1: var(--homey-background-color, #ffffff);
       --card-edge: var(--homey-line-color-light, rgba(12,26,38,.08));
       --text:      var(--homey-text-color, #12212c);
       --muted:     var(--homey-text-color-light, #5f7180);
-      --track:     rgba(14,30,45,.09);
-      --btn:       rgba(14,30,45,.04);
-      --btn-edge:  rgba(14,30,45,.10);
-      --chip:      rgba(14,30,45,.035);
     }
   }
   /* the Homey dashboard signals dark mode with this class, independent of
      the OS prefers-color-scheme — it must win over the media query above */
   .homey-dark-mode {
+    --ink:       var(--homey-color-mono-1000, #ffffff);
     --surface-1: var(--homey-background-color, #141d27);
     --card-edge: var(--homey-line-color-light, rgba(255,255,255,.06));
     --text:      var(--homey-text-color, #eaf2f8);
     --muted:     var(--homey-text-color-light, #7d8f9c);
-    --track:rgba(255,255,255,.075);
-    --btn:rgba(255,255,255,.05); --btn-edge:rgba(255,255,255,.09); --chip:rgba(255,255,255,.035);
   }
+  /* forced themes for preview screenshots (tokens absent there) */
   :root[data-theme="dark"] {
-    --surface-1:#141d27; --card-edge:rgba(255,255,255,.06);
-    --text:#eaf2f8; --muted:#7d8f9c; --track:rgba(255,255,255,.075);
-    --btn:rgba(255,255,255,.05); --btn-edge:rgba(255,255,255,.09); --chip:rgba(255,255,255,.035);
+    --ink:#ffffff; --surface-1:#141d27;
+    --card-edge:rgba(255,255,255,.06); --text:#eaf2f8; --muted:#7d8f9c;
   }
   :root[data-theme="light"] {
-    --surface-1:#ffffff; --card-edge:rgba(12,26,38,.08);
-    --text:#12212c; --muted:#5f7180; --track:rgba(14,30,45,.09);
-    --btn:rgba(14,30,45,.04); --btn-edge:rgba(14,30,45,.10); --chip:rgba(14,30,45,.035);
+    --ink:#0e1e2d; --surface-1:#ffffff;
+    --card-edge:rgba(12,26,38,.08); --text:#12212c; --muted:#5f7180;
   }
 
   * { box-sizing: border-box; }
@@ -61,7 +58,7 @@
     color: var(--text);
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
-    font-size: 14px;
+    font-size: var(--homey-font-size-small, 14px);
     padding: 2px;
     user-select: none;
     -webkit-user-select: none;
@@ -70,7 +67,7 @@
   .widget {
     width: 100%;
     border-radius: 20px;
-    padding: 14px 16px 14px;
+    padding: var(--homey-su-4, 16px);
     position: relative;
     overflow: hidden;
     background: transparent;
@@ -88,7 +85,7 @@
 
   /* header ------------------------------------------------------- */
   header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .device  { font-size: 15px; font-weight: 650; letter-spacing: -.01em;
+  .device  { font-size: var(--homey-font-size-small, 15px); font-weight: var(--homey-font-weight-bold, 650); letter-spacing: -.01em;
              overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .status  {
     display: inline-flex; align-items: center; gap: 6px;
@@ -103,7 +100,7 @@
   @keyframes pulse { 0%{box-shadow:0 0 0 0 var(--glow);} 70%{box-shadow:0 0 0 6px transparent;} 100%{box-shadow:0 0 0 0 transparent;} }
 
   /* temp row ------------------------------------------------------ */
-  .temprow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+  .temprow { display: flex; align-items: center; justify-content: space-between; gap: var(--homey-su-2, 10px); margin-top: var(--homey-su-2, 10px); }
   .step {
     width: 42px; height: 42px; border-radius: 50%; flex: none;
     border: 1px solid var(--btn-edge); background: var(--btn); color: var(--text);
@@ -155,7 +152,7 @@
   }
 
   /* mode chips --------------------------------------------------- */
-  .modes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 10px; }
+  .modes { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--homey-su-1, 6px); margin-top: var(--homey-su-2, 10px); }
   .mode {
     display: flex; flex-direction: column; align-items: center; gap: 3px;
     padding: 7px 2px 6px; border-radius: 12px; cursor: pointer;
@@ -173,7 +170,7 @@
   }
 
   /* fan speed ---------------------------------------------------- */
-  .fan { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; margin-top: 8px;
+  .fan { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; margin-top: var(--homey-su-2, 8px);
          background: var(--chip); border: 1px solid var(--card-edge); border-radius: 12px; padding: 4px; }
   .fanbtn {
     border: none; background: transparent; color: var(--muted); cursor: pointer;
@@ -237,16 +234,18 @@
   const POLL_MS = 5000;
   const LOCAL_GRACE_MS = 4000; // ignore polled state right after a local change
 
+  // Accents prefer Homey design tokens (present in the dashboard webview)
+  // and fall back to our palette; auto keeps indigo — Homey has no purple token.
   const MODES = {
-    cool: { label: "Cool", a: "#38bdf8", a2: "#22d3ee", glow: "rgba(56,189,248,.55)",
+    cool: { label: "Cool", a: "var(--homey-color-blue-400, #38bdf8)", a2: "var(--homey-color-blue-300, #22d3ee)",
       icon: `<path d="M12 3v18M4.5 7.5l15 9M19.5 7.5l-15 9" stroke-linecap="round"/>` },
-    heat: { label: "Heat", a: "#fb923c", a2: "#f59e0b", glow: "rgba(251,146,60,.55)",
+    heat: { label: "Heat", a: "var(--homey-color-orange-500, #fb923c)", a2: "#f59e0b",
       icon: `<path d="M12 3c2 3 4 4.5 4 8a4 4 0 0 1-8 0c0-1.5.6-2.7 1.4-3.6C10 8.5 11 6.5 12 3Z"/>` },
-    dry:  { label: "Dry",  a: "#34d399", a2: "#2dd4bf", glow: "rgba(52,211,153,.5)",
+    dry:  { label: "Dry",  a: "var(--homey-color-green-500, #34d399)", a2: "#2dd4bf",
       icon: `<path d="M12 3c3 4 5 6.5 5 9.5A5 5 0 0 1 7 12.5C7 9.5 9 7 12 3Z"/>` },
-    fan:  { label: "Fan",  a: "#93a4b3", a2: "#c3d0da", glow: "rgba(147,164,179,.45)",
+    fan:  { label: "Fan",  a: "var(--homey-color-mono-400, #93a4b3)", a2: "#c3d0da",
       icon: `<circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M12 10.4c0-3 2-5 5-5 0 3-2 5-5 5Zm0 3.2c0 3-2 5-5 5 0-3 2-5 5-5Zm-1.6-1.6c-3 0-5-2-5-5 3 0 5 2 5 5Zm3.2 0c3 0 5 2 5 5-3 0-5-2-5-5Z"/>` },
-    auto: { label: "Auto", a: "#818cf8", a2: "#a78bfa", glow: "rgba(129,140,248,.5)",
+    auto: { label: "Auto", a: "#818cf8", a2: "#a78bfa",
       icon: `<path d="M7.5 18l4.5-12 4.5 12M9 14h6" stroke-linecap="round" stroke-linejoin="round"/>` },
   };
   // Matches the fan_speed capability values; speed drives the airflow animation.
@@ -306,12 +305,13 @@
   }
 
   // ---- render ------------------------------------------------------------
+  let accentColor = "#38bdf8"; // resolved accent for the canvas (can't parse var())
   function render() {
     const m = MODES[state.mode] || MODES.cool;
     const root = document.documentElement;
     root.style.setProperty("--accent", m.a);
     root.style.setProperty("--accent-2", m.a2);
-    root.style.setProperty("--glow", m.glow);
+    accentColor = getComputedStyle(root).getPropertyValue("--accent").trim() || accentColor;
 
     widget.dataset.on = String(state.on);
 
@@ -395,7 +395,6 @@
     ctx.clearRect(0, 0, W, H);
     if (widget.dataset.on !== "true") return;
     tick += 0.016;
-    const m = MODES[state.mode] || MODES.cool;
     const fan = FANS.find(f => f.key === state.fan);
     const speed = fan ? fan.speed : 1;
     const dir = state.mode === "heat" ? -1 : 1; // heat drifts up-ish
@@ -406,7 +405,7 @@
       ctx.beginPath();
       ctx.moveTo(p.x, yy);
       ctx.bezierCurveTo(p.x - p.len * 0.4, yy - p.amp, p.x - p.len * 0.6, yy + p.amp, p.x - p.len, yy);
-      ctx.strokeStyle = m.a;
+      ctx.strokeStyle = accentColor;
       ctx.globalAlpha = p.o * Math.min(speed, 1.4);
       ctx.lineWidth = p.w; ctx.lineCap = "round";
       ctx.stroke();
