@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root {
+    color-scheme: light dark;
+    /* accent is driven by the active mode (set from JS) */
+    --accent:  #38bdf8;
+    --accent-2:#22d3ee;
+    --glow:    rgba(56,189,248,.55);
+
+    /* neutrals — cool-biased slate */
+    --surface-1: #141d27;
+    --card-edge: rgba(255,255,255,.06);
+    --text:      #eaf2f8;
+    --muted:     #7d8f9c;
+    --track:     rgba(255,255,255,.075);
+    --btn:       rgba(255,255,255,.05);
+    --btn-edge:  rgba(255,255,255,.09);
+    --chip:      rgba(255,255,255,.035);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --surface-1: #ffffff;
+      --card-edge: rgba(12,26,38,.08);
+      --text:      #12212c;
+      --muted:     #5f7180;
+      --track:     rgba(14,30,45,.09);
+      --btn:       rgba(14,30,45,.04);
+      --btn-edge:  rgba(14,30,45,.10);
+      --chip:      rgba(14,30,45,.035);
+    }
+  }
+  :root[data-theme="dark"] {
+    --surface-1:#141d27; --card-edge:rgba(255,255,255,.06);
+    --text:#eaf2f8; --muted:#7d8f9c; --track:rgba(255,255,255,.075);
+    --btn:rgba(255,255,255,.05); --btn-edge:rgba(255,255,255,.09); --chip:rgba(255,255,255,.035);
+  }
+  :root[data-theme="light"] {
+    --surface-1:#ffffff; --card-edge:rgba(12,26,38,.08);
+    --text:#12212c; --muted:#5f7180; --track:rgba(14,30,45,.09);
+    --btn:rgba(14,30,45,.04); --btn-edge:rgba(14,30,45,.10); --chip:rgba(14,30,45,.035);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; overscroll-behavior: none; }
+  body {
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+    padding: 2px;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .widget {
+    width: 100%;
+    border-radius: 20px;
+    padding: 14px 16px 14px;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+    border: 1px solid var(--card-edge);
+    transition: border-color .6s ease;
+  }
+  .widget[data-on="true"] {
+    border-color: color-mix(in srgb, var(--accent) 30%, var(--card-edge));
+  }
+
+  /* header ------------------------------------------------------- */
+  header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .device  { font-size: 15px; font-weight: 650; letter-spacing: -.01em;
+             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .status  {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    padding: 4px 9px; border-radius: 999px;
+    background: var(--chip); border: 1px solid var(--card-edge);
+    white-space: nowrap; flex: none;
+  }
+  .status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+  .widget[data-on="true"] .status { color: var(--accent); }
+  .widget[data-on="true"] .status .dot { background: var(--accent); box-shadow: 0 0 0 0 var(--glow); animation: pulse 2.4s ease-out infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 var(--glow);} 70%{box-shadow:0 0 0 6px transparent;} 100%{box-shadow:0 0 0 0 transparent;} }
+
+  /* temp row ------------------------------------------------------ */
+  .temprow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+  .step {
+    width: 42px; height: 42px; border-radius: 50%; flex: none;
+    border: 1px solid var(--btn-edge); background: var(--btn); color: var(--text);
+    cursor: pointer; display: grid; place-items: center;
+    transition: transform .12s ease, background .2s ease, border-color .2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .step:active { transform: scale(.92); background: color-mix(in srgb, var(--accent) 16%, var(--btn)); }
+  .step svg { width: 18px; height: 18px; }
+
+  .readout { text-align: center; min-width: 0; }
+  .temp { font-size: 38px; font-weight: 600; letter-spacing: -.03em; line-height: 1;
+          font-variant-numeric: tabular-nums; transition: color .5s ease; }
+  .temp .unit { font-size: 15px; font-weight: 550; color: var(--muted); vertical-align: super; margin-left: 1px; }
+  .sub { margin-top: 4px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .widget[data-on="true"] .temp { color: var(--text); }
+  .widget[data-on="false"] .temp { color: var(--muted); }
+
+  .power {
+    width: 42px; height: 42px; border-radius: 50%; flex: none;
+    border: 1px solid var(--btn-edge); background: var(--btn); color: var(--text);
+    cursor: pointer; display: grid; place-items: center;
+    transition: transform .12s ease, background .35s ease, border-color .35s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .power svg { width: 18px; height: 18px; }
+  .power:active { transform: scale(.92); }
+  .widget[data-on="true"] .power {
+    color: #06101a;
+    background: linear-gradient(180deg, var(--accent-2), var(--accent));
+    border-color: transparent;
+  }
+
+  /* temp slider ---------------------------------------------------- */
+  .slider { position: relative; height: 28px; margin: 8px 4px 0; touch-action: none; cursor: grab; }
+  .slider.dragging { cursor: grabbing; }
+  .slider .rail, .slider .fill {
+    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    height: 6px; border-radius: 999px;
+  }
+  .slider .rail { width: 100%; background: var(--track); }
+  .slider .fill { background: linear-gradient(90deg, var(--accent-2), var(--accent)); transition: background .5s ease; }
+  .widget[data-on="false"] .slider .fill { opacity: .5; }
+  .slider .knob {
+    position: absolute; top: 50%; width: 18px; height: 18px; border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--surface-1); border: 3px solid var(--accent);
+    transition: border-color .5s ease;
+  }
+
+  /* mode chips --------------------------------------------------- */
+  .modes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 10px; }
+  .mode {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 7px 2px 6px; border-radius: 12px; cursor: pointer;
+    background: var(--chip); border: 1px solid transparent; color: var(--muted);
+    transition: color .2s ease, background .2s ease, border-color .2s ease, transform .12s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mode svg { width: 17px; height: 17px; }
+  .mode span { font-size: 8.5px; letter-spacing: .04em; font-weight: 650; text-transform: uppercase; }
+  .mode:active { transform: scale(.95); }
+  .mode[aria-pressed="true"] {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  /* fan speed ---------------------------------------------------- */
+  .fan { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; margin-top: 8px;
+         background: var(--chip); border: 1px solid var(--card-edge); border-radius: 12px; padding: 4px; }
+  .fanbtn {
+    border: none; background: transparent; color: var(--muted); cursor: pointer;
+    padding: 7px 0; border-radius: 8px; font-size: 9px; font-weight: 650; letter-spacing: .02em;
+    transition: color .2s ease, background .25s ease; -webkit-tap-highlight-color: transparent;
+    font-family: inherit;
+  }
+  .fanbtn[aria-pressed="true"] { color: #08121a; background: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="widget" data-on="false" id="widget">
+  <header>
+    <div class="device" id="deviceName">Air Conditioner</div>
+    <div class="status" id="status"><span class="dot"></span><span id="statusText">Off</span></div>
+  </header>
+
+  <div class="temprow">
+    <button class="step" id="down" aria-label="Lower temperature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg>
+    </button>
+    <div class="readout">
+      <div class="temp"><span id="tempVal">22</span><span class="unit">°C</span></div>
+      <div class="sub"><span id="subMode">Cool</span> · Room <span id="roomVal">—</span>°</div>
+    </div>
+    <button class="step" id="up" aria-label="Raise temperature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <button class="power" id="power" aria-label="Toggle power">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 4v8"/><path d="M7.5 7a7 7 0 1 0 9 0"/></svg>
+    </button>
+  </div>
+
+  <div class="slider" id="slider" aria-label="Target temperature">
+    <div class="rail"></div>
+    <div class="fill" id="fill"></div>
+    <div class="knob" id="knob"></div>
+  </div>
+
+  <div class="modes" id="modes" role="group" aria-label="Mode"></div>
+
+  <div class="fan" id="fan" role="group" aria-label="Fan speed"></div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // ---- config ------------------------------------------------------------
+  // The ECHONET protocol carries whole degrees only, so step by 1.
+  const MIN = 16, MAX = 31, STEP = 1;
+  const POLL_MS = 5000;
+  const LOCAL_GRACE_MS = 4000; // ignore polled state right after a local change
+
+  const MODES = {
+    cool: { label: "Cool", a: "#38bdf8", a2: "#22d3ee", glow: "rgba(56,189,248,.55)",
+      icon: `<path d="M12 3v18M4.5 7.5l15 9M19.5 7.5l-15 9" stroke-linecap="round"/>` },
+    heat: { label: "Heat", a: "#fb923c", a2: "#f59e0b", glow: "rgba(251,146,60,.55)",
+      icon: `<path d="M12 3c2 3 4 4.5 4 8a4 4 0 0 1-8 0c0-1.5.6-2.7 1.4-3.6C10 8.5 11 6.5 12 3Z"/>` },
+    dry:  { label: "Dry",  a: "#34d399", a2: "#2dd4bf", glow: "rgba(52,211,153,.5)",
+      icon: `<path d="M12 3c3 4 5 6.5 5 9.5A5 5 0 0 1 7 12.5C7 9.5 9 7 12 3Z"/>` },
+    fan:  { label: "Fan",  a: "#93a4b3", a2: "#c3d0da", glow: "rgba(147,164,179,.45)",
+      icon: `<circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M12 10.4c0-3 2-5 5-5 0 3-2 5-5 5Zm0 3.2c0 3-2 5-5 5 0-3 2-5 5-5Zm-1.6-1.6c-3 0-5-2-5-5 3 0 5 2 5 5Zm3.2 0c3 0 5 2 5 5-3 0-5-2-5-5Z"/>` },
+    auto: { label: "Auto", a: "#818cf8", a2: "#a78bfa", glow: "rgba(129,140,248,.5)",
+      icon: `<path d="M7.5 18l4.5-12 4.5 12M9 14h6" stroke-linecap="round" stroke-linejoin="round"/>` },
+  };
+  // Matches the fan_speed capability values.
+  const FANS = [
+    { key: "auto",   label: "AUTO"  },
+    { key: "quiet",  label: "QUIET" },
+    { key: "low",    label: "LOW"   },
+    { key: "medium", label: "MED"   },
+    { key: "high",   label: "HIGH"  },
+    { key: "max",    label: "MAX"   },
+  ];
+
+  // ---- state -------------------------------------------------------------
+  const state = { on: false, mode: "cool", target: 22, room: null, outdoor: null, fan: "auto", name: "Air Conditioner" };
+  let homeyApi = null;      // set in onHomeyReady
+  let deviceId = null;
+  let lastLocalChange = 0;
+  let dragging = false;
+
+  // Standalone/preview support (used for the store preview screenshots).
+  const params = new URLSearchParams(location.search);
+  if (params.get("theme")) document.documentElement.dataset.theme = params.get("theme");
+  if (params.has("preview")) { state.on = true; state.room = 24; state.name = "Living Room"; }
+
+  // ---- helpers -----------------------------------------------------------
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const frac  = () => (state.target - MIN) / (MAX - MIN);
+
+  // ---- elements ----------------------------------------------------------
+  const el = id => document.getElementById(id);
+  const widget = el("widget");
+
+  // build mode chips
+  const modesBox = el("modes");
+  for (const key of Object.keys(MODES)) {
+    const m = MODES[key];
+    const b = document.createElement("button");
+    b.className = "mode"; b.type = "button"; b.dataset.mode = key;
+    b.setAttribute("aria-pressed", "false");
+    b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">${m.icon}</svg><span>${m.label}</span>`;
+    b.addEventListener("click", () => {
+      state.mode = key;
+      if (!state.on) state.on = true; // the driver powers on when a mode is set
+      touch(); render(); push("/mode", key);
+    });
+    modesBox.appendChild(b);
+  }
+  // build fan buttons
+  const fanBox = el("fan");
+  for (const f of FANS) {
+    const b = document.createElement("button");
+    b.className = "fanbtn"; b.type = "button"; b.dataset.fan = f.key; b.textContent = f.label;
+    b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", () => { state.fan = f.key; touch(); render(); push("/fan", f.key); });
+    fanBox.appendChild(b);
+  }
+
+  // ---- render ------------------------------------------------------------
+  function render() {
+    const m = MODES[state.mode] || MODES.cool;
+    const root = document.documentElement;
+    root.style.setProperty("--accent", m.a);
+    root.style.setProperty("--accent-2", m.a2);
+    root.style.setProperty("--glow", m.glow);
+
+    widget.dataset.on = String(state.on);
+
+    // slider
+    const f = clamp(frac(), 0, 1);
+    el("fill").style.width = `${(f * 100).toFixed(2)}%`;
+    el("knob").style.left = `${(f * 100).toFixed(2)}%`;
+
+    // readout
+    const t = state.target;
+    el("tempVal").textContent = Number.isInteger(t) ? t : t.toFixed(1);
+    el("subMode").textContent = m.label;
+    el("roomVal").textContent = state.room == null ? "—" : Number(state.room).toFixed(1).replace(/\.0$/, "");
+
+    // status pill
+    const verb = { cool: "Cooling", heat: "Heating", dry: "Drying", fan: "Fan", auto: "Auto" }[state.mode] || "On";
+    el("statusText").textContent = state.on ? verb : "Off";
+
+    el("deviceName").textContent = state.name;
+
+    // mode chips
+    modesBox.querySelectorAll(".mode").forEach(b =>
+      b.setAttribute("aria-pressed", String(b.dataset.mode === state.mode)));
+    // fan
+    fanBox.querySelectorAll(".fanbtn").forEach(b =>
+      b.setAttribute("aria-pressed", String(b.dataset.fan === state.fan)));
+  }
+
+  // ---- interactions ------------------------------------------------------
+  function setTemp(v) {
+    const nv = clamp(Math.round(v / STEP) * STEP, MIN, MAX);
+    if (nv !== state.target) { state.target = nv; touch(); render(); pushTemp(); }
+  }
+
+  el("up").addEventListener("click", () => setTemp(state.target + STEP));
+  el("down").addEventListener("click", () => setTemp(state.target - STEP));
+  el("power").addEventListener("click", () => { state.on = !state.on; touch(); render(); push("/onoff", state.on); });
+
+  // drag on the slider
+  const slider = el("slider");
+  function pointToTemp(ev) {
+    const r = slider.getBoundingClientRect();
+    const f = clamp((ev.clientX - r.left) / r.width, 0, 1);
+    setTemp(MIN + f * (MAX - MIN));
+  }
+  slider.addEventListener("pointerdown", ev => {
+    dragging = true; slider.classList.add("dragging");
+    slider.setPointerCapture(ev.pointerId); pointToTemp(ev); ev.preventDefault();
+  });
+  slider.addEventListener("pointermove", ev => { if (dragging) pointToTemp(ev); });
+  const endDrag = () => { dragging = false; slider.classList.remove("dragging"); };
+  slider.addEventListener("pointerup", endDrag);
+  slider.addEventListener("pointercancel", endDrag);
+  // some webviews ignore touch-action and try to scroll mid-drag
+  slider.addEventListener("touchstart", ev => ev.preventDefault(), { passive: false });
+  slider.addEventListener("touchmove", ev => ev.preventDefault(), { passive: false });
+
+  // ---- Homey integration ---------------------------------------------------
+  function touch() { lastLocalChange = Date.now(); }
+
+  function push(path, value) {
+    if (!homeyApi || !deviceId) return;
+    homeyApi("POST", `${path}?deviceId=${encodeURIComponent(deviceId)}`, { value })
+      .catch(err => console.error(`POST ${path} failed`, err));
+  }
+  function pushTemp() {
+    // debounce slider drags so we don't spam the AC with UDP sets
+    clearTimeout(pushTemp._t);
+    pushTemp._t = setTimeout(() => push("/target", state.target), 350);
+  }
+
+  function pullState() {
+    if (!homeyApi || !deviceId) return;
+    homeyApi("GET", `/state?deviceId=${encodeURIComponent(deviceId)}`)
+      .then(s => {
+        if (!s) return;
+        // don't fight the user's in-flight changes
+        if (dragging || Date.now() - lastLocalChange < LOCAL_GRACE_MS) return;
+        if (typeof s.name === "string") state.name = s.name;
+        if (typeof s.on === "boolean") state.on = s.on;
+        if (typeof s.target === "number") state.target = clamp(s.target, MIN, MAX);
+        if (typeof s.room === "number") state.room = s.room;
+        if (typeof s.outdoor === "number") state.outdoor = s.outdoor;
+        if (s.mode && MODES[s.mode]) state.mode = s.mode;
+        if (s.fan && FANS.some(f => f.key === s.fan)) state.fan = s.fan;
+        render();
+        if (s.available === false) el("statusText").textContent = "Unreachable";
+      })
+      .catch(err => console.error("GET /state failed", err));
+  }
+
+  render();
+
+  window.onHomeyReady = function onHomeyReady(Homey) {
+    homeyApi = Homey.api.bind(Homey);
+    deviceId = (Homey.getDeviceIds() || [])[0] || null;
+
+    if (!deviceId) {
+      el("statusText").textContent = "No device";
+      el("deviceName").textContent = "Select a device";
+    } else {
+      pullState();
+      setInterval(pullState, POLL_MS);
+    }
+
+    Homey.ready({ height: document.body.offsetHeight });
+  };
+})();
+</script>
+
+</body>
+</html>
