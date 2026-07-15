@@ -19,5 +19,8 @@
   },
   "1.2.2": {
     "en": "Respect widget guidelines on colors and tokens"
+  },
+  "1.2.3": {
+    "en": "Flatten styles, remove gradients"
   }
 }
