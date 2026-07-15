@@ -22,5 +22,8 @@
   },
   "1.2.3": {
     "en": "Flatten styles, remove gradients"
+  },
+  "1.2.4": {
+    "en": "Update widget previews"
   }
 }
