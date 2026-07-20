@@ -25,5 +25,8 @@
   },
   "1.2.4": {
     "en": "Update widget previews"
+  },
+  "1.2.5": {
+    "en": "Add homekit support"
   }
 }
