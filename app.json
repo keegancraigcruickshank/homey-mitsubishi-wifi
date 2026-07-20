@@ -54,6 +54,7 @@
       "capabilities": [
         "onoff",
         "ac_mode",
+        "thermostat_mode",
         "target_temperature",
         "measure_temperature",
         "measure_temperature.outdoor",
@@ -61,6 +62,14 @@
         "vane_vertical"
       ],
       "capabilitiesOptions": {
+        "thermostat_mode": {
+          "title": {
+            "en": "Mode"
+          }
+        },
+        "ac_mode": {
+          "uiComponent": null
+        },
         "target_temperature": {
           "min": 16,
           "max": 31,

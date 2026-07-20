@@ -21,8 +21,16 @@ const OUTDOOR_UNDEFINED = 126; // EPC 0xBE, 0x7E means "no value"
 module.exports = class MitsubishiDevice extends Homey.Device {
 
   async onInit() {
+    // Devices paired before thermostat_mode existed don't get it from the
+    // manifest automatically — add it so Homey's HomeKit bridge (and HomeKitty)
+    // can expose on/off + mode. HomeKitty only offers "auto" when it's absent.
+    if (!this.hasCapability('thermostat_mode')) {
+      await this.addCapability('thermostat_mode').catch((err) => this.error('addCapability thermostat_mode:', err.message));
+    }
+
     this.registerCapabilityListener('onoff', this.onCapabilityOnoff.bind(this));
     this.registerCapabilityListener('ac_mode', this.onCapabilityMode.bind(this));
+    this.registerCapabilityListener('thermostat_mode', this.onCapabilityThermostatMode.bind(this));
     this.registerCapabilityListener('target_temperature', this.onCapabilityTargetTemperature.bind(this));
     this.registerCapabilityListener('fan_speed', this.onCapabilityFanSpeed.bind(this));
     this.registerCapabilityListener('vane_vertical', this.onCapabilityVane.bind(this));
@@ -86,6 +94,7 @@ module.exports = class MitsubishiDevice extends Homey.Device {
 
     await this._set('onoff', edt[EPC.OPERATION_STATUS] && edt[EPC.OPERATION_STATUS][0] === POWER.ON);
     await this._set('ac_mode', edt[EPC.OPERATION_MODE] && MODE_FROM_BYTE[edt[EPC.OPERATION_MODE][0]]);
+    await this._syncThermostatMode();
     await this._set('target_temperature', edt[EPC.TARGET_TEMPERATURE] && edt[EPC.TARGET_TEMPERATURE][0]);
     await this._set('measure_temperature', edt[EPC.ROOM_TEMPERATURE] && signed8(edt[EPC.ROOM_TEMPERATURE][0]));
     await this._set('fan_speed', edt[EPC.FAN_SPEED] && FAN_FROM_BYTE[edt[EPC.FAN_SPEED][0]]);
@@ -118,16 +127,65 @@ module.exports = class MitsubishiDevice extends Homey.Device {
 
   async onCapabilityOnoff(value) {
     await EchonetLite.setProperty(this.ip, EPC.OPERATION_STATUS, Buffer.from([value ? POWER.ON : POWER.OFF]));
+    await this._syncThermostatMode({ onoff: value });
   }
 
   async onCapabilityMode(value) {
     const byte = MODE_TO_BYTE[value];
     if (byte === undefined) throw new Error(`Unsupported mode: ${value}`);
-    await EchonetLite.setProperty(this.ip, EPC.OPERATION_MODE, Buffer.from([byte]));
-    // Selecting a mode implicitly powers the unit on.
+    // A powered-off unit ignores a bare operation-mode write, so power it on
+    // first when needed, then set the mode.
     if (!this.getCapabilityValue('onoff')) {
+      await EchonetLite.setProperty(this.ip, EPC.OPERATION_STATUS, Buffer.from([POWER.ON]));
       await this.setCapabilityValue('onoff', true).catch(() => {});
     }
+    await EchonetLite.setProperty(this.ip, EPC.OPERATION_MODE, Buffer.from([byte]));
+    await this._syncThermostatMode({ onoff: true, acMode: value });
+  }
+
+  /**
+   * `thermostat_mode` is the standard capability Homey's HomeKit bridge maps to
+   * the thermostat's Heating/Cooling State. HomeKit models power as part of the
+   * mode ("off" is a state, not a separate switch), so this listener drives both
+   * onoff and ac_mode. It is the single mode picker shown on the Homey device
+   * screen and the capability HomeKit maps. ac_mode is hidden from the device UI
+   * (uiComponent: null) but kept as the richer 5-mode capability the dashboard
+   * widgets drive, so Dry/Fan stay available there.
+   */
+  async onCapabilityThermostatMode(value) {
+    if (value === 'off') {
+      await EchonetLite.setProperty(this.ip, EPC.OPERATION_STATUS, Buffer.from([POWER.OFF]));
+      await this.setCapabilityValue('onoff', false).catch(() => {});
+      return;
+    }
+    const byte = MODE_TO_BYTE[value];
+    if (byte === undefined) throw new Error(`Unsupported thermostat mode: ${value}`);
+    // A powered-off unit ignores a bare operation-mode write, so explicitly
+    // power it on first, then set the mode. HomeKit has no separate power
+    // switch — choosing heat/cool/auto must start the unit.
+    if (!this.getCapabilityValue('onoff')) {
+      await EchonetLite.setProperty(this.ip, EPC.OPERATION_STATUS, Buffer.from([POWER.ON]));
+      await this.setCapabilityValue('onoff', true).catch(() => {});
+    }
+    await EchonetLite.setProperty(this.ip, EPC.OPERATION_MODE, Buffer.from([byte]));
+    await this.setCapabilityValue('ac_mode', value).catch(() => {});
+  }
+
+  /**
+   * Reflect the current power + ac_mode state onto `thermostat_mode`. HomeKit's
+   * thermostat only models heat/cool/auto/off; `dry` and `fan` have no
+   * equivalent, so they surface as `auto`. When called from a capability
+   * listener the framework has not yet stored the new value, so callers pass the
+   * incoming value explicitly via the overrides.
+   */
+  async _syncThermostatMode({ onoff, acMode } = {}) {
+    const on = onoff !== undefined ? onoff : this.getCapabilityValue('onoff');
+    const mode = acMode !== undefined ? acMode : this.getCapabilityValue('ac_mode');
+    let value;
+    if (!on) value = 'off';
+    else if (mode === 'heat' || mode === 'cool' || mode === 'auto') value = mode;
+    else value = 'auto';
+    await this._set('thermostat_mode', value);
   }
 
   async onCapabilityTargetTemperature(value) {
